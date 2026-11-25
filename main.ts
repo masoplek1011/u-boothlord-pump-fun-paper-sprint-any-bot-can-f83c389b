@@ -49,16 +49,16 @@ const SELL_SLIPPAGE_BPS = 1000;
 const COOLDOWN_EVENTS = 100;
 
 // SEF (primary): fade the exhausted sell-off.
-const SEF_WINDOW = 40;
-const SEF_DRAWDOWN = 0.15; // real reserve down >= 15% over the window
+const SEF_WINDOW = 60;
+const SEF_DRAWDOWN = 0.08; // real reserve down >= 8% over the window
 const SEF_SELL_RATIO = 1.25; // sell SOL last 10 <= 1.25x the 10 before
 const SEF_SIZE_SOL = 0.5;
-const SEF_TP = 1.10;
-const SEF_SL = 0.96;
-const SEF_MAX_HOLD_EVENTS = 80;
+const SEF_TP = 1.08;
+const SEF_SL = 0.97;
+const SEF_MAX_HOLD_EVENTS = 120;
 
 // CB (secondary): buy the breakout out of a flat coil.
-const CB_WINDOW = 50;
+const CB_WINDOW = 60;
 const CB_RANGE = 0.05; // 50-event price range <= 5%
 const CB_RESERVE_DRIFT = 0.02; // real reserve within +-2% over the window
 const CB_BATCH_NET_BUY = 0.004; // this batch net buy >= 0.4% of real reserve
