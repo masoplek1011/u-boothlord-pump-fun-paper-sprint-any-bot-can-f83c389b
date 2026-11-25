@@ -51,7 +51,7 @@ const COOLDOWN_EVENTS = 100;
 // SEF (primary): fade the exhausted sell-off.
 const SEF_WINDOW = 40;
 const SEF_DRAWDOWN = 0.10; // real reserve down >= 10% over the window
-const SEF_SELL_RATIO = 1.0; // sell SOL last 10 <= 1.0x the 10 before
+const SEF_SELL_RATIO = 1.25; // sell SOL last 10 <= 1.25x the 10 before
 const SEF_SIZE_SOL = 0.5;
 const SEF_TP = 1.08;
 const SEF_SL = 0.96;
@@ -59,9 +59,9 @@ const SEF_MAX_HOLD_EVENTS = 80;
 
 // CB (secondary): buy the breakout out of a flat coil.
 const CB_WINDOW = 50;
-const CB_RANGE = 0.08; // 50-event price range <= 8%
-const CB_RESERVE_DRIFT = 0.03; // real reserve within +-3% over the window
-const CB_BATCH_NET_BUY = 0.002; // this batch net buy >= 0.2% of real reserve
+const CB_RANGE = 0.05; // 50-event price range <= 5%
+const CB_RESERVE_DRIFT = 0.02; // real reserve within +-2% over the window
+const CB_BATCH_NET_BUY = 0.004; // this batch net buy >= 0.4% of real reserve
 const CB_SIZE_SOL = 0.6;
 const CB_TP = 1.08;
 const CB_SL = 0.96;
@@ -156,7 +156,7 @@ function sefSignal(s: MintState): boolean {
     netRecent += t.isBuy ? t.sol : -t.sol;
   }
   if (sellPrior <= 0) return sellRecent <= 0 && netRecent >= 0;
-  return sellRecent <= SEF_SELL_RATIO * sellPrior && netRecent > 0;
+  return sellRecent <= SEF_SELL_RATIO * sellPrior && netRecent >= 0;
 }
 
 // CB: flat 50-event coil, stable real reserve, then this batch's net buy
