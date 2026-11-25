@@ -54,7 +54,7 @@ const SEF_DRAWDOWN = 0.10; // real reserve down >= 10% over the window
 const SEF_SELL_RATIO = 1.25; // sell SOL last 10 <= 1.25x the 10 before
 const SEF_SIZE_SOL = 0.5;
 const SEF_TP = 1.08;
-const SEF_SL = 0.97;
+const SEF_SL = 0.96;
 const SEF_MAX_HOLD_EVENTS = 80;
 
 // CB (secondary): buy the breakout out of a flat coil.
