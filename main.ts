@@ -5,7 +5,7 @@
 // clock, no randomness, no environment, no file I/O while running).
 //
 //   1. Sell-Exhaustion Fade (SEF, primary): a mint whose real SOL reserve
-//      fell >= 6% over its last 40 events, whose selling has decelerated
+//      fell >= 10% over its last 40 events, whose selling has decelerated
 //      (sell SOL in the last 10 events <= 1.25x the 10 before them), and
 //      whose last 5 events are net non-negative, is bought as a fade of
 //      the exhausted dump.

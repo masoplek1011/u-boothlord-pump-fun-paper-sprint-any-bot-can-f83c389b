@@ -12,14 +12,14 @@ two causal strategies — no future data, no clock, no randomness, no network.
 ## Strategy
 
 - **Sell-Exhaustion Fade (primary).** Buy a mint whose real SOL reserve fell
-  at least 6% over its last 40 events, whose selling has decelerated (sell
+  at least 10% over its last 40 events, whose selling has decelerated (sell
   SOL in the last 10 events at most 1.25x the 10 before them), and whose
-  last 5 events are net non-negative. Size 0.50 SOL, take-profit +6%,
-  stop-loss −3%, max hold 80 events.
+  last 5 events are net non-negative. Size 0.50 SOL, take-profit +8%,
+  stop-loss −4%, max hold 80 events.
 - **Coil Breakout (secondary).** Buy a mint coiled flat (50-event virtual
   price range at most 5%, real reserve within ±2%) that prints a new
   50-event high on a batch net buy of at least 0.4% of its real reserve.
-  Size 0.60 SOL, take-profit +7%, stop-loss −3%, max hold 60 events.
+  Size 0.60 SOL, take-profit +8%, stop-loss −4%, max hold 60 events.
 
 Price is proxied by (virtual SOL reserves)², the constant-product curve
 price. At most 5 open positions, one per mint, each order capped at 1% of
