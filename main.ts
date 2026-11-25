@@ -50,8 +50,8 @@ const COOLDOWN_EVENTS = 100;
 
 // SEF (primary): fade the exhausted sell-off.
 const SEF_WINDOW = 40;
-const SEF_DRAWDOWN = 0.99; // disabled for this variant: CB-only test
-const SEF_SELL_RATIO = 1.25; // sell SOL last 10 <= 1.25x the 10 before
+const SEF_DRAWDOWN = 0.10; // real reserve down >= 10% over the window
+const SEF_SELL_RATIO = 1.0; // sell SOL last 10 <= 1.0x the 10 before
 const SEF_SIZE_SOL = 0.5;
 const SEF_TP = 1.08;
 const SEF_SL = 0.96;
@@ -156,7 +156,7 @@ function sefSignal(s: MintState): boolean {
     netRecent += t.isBuy ? t.sol : -t.sol;
   }
   if (sellPrior <= 0) return sellRecent <= 0 && netRecent >= 0;
-  return sellRecent <= SEF_SELL_RATIO * sellPrior && netRecent >= 0;
+  return sellRecent <= SEF_SELL_RATIO * sellPrior && netRecent > 0;
 }
 
 // CB: flat 50-event coil, stable real reserve, then this batch's net buy
