@@ -71,6 +71,7 @@ const CB_MAX_HOLD_EVENTS = 60;
 interface TradeTick {
   vSol: number; // virtual SOL reserves, in SOL
   rSol: number; // real SOL reserves, in SOL
+  rLamports: bigint; // real SOL reserves, exact lamports (for order sizing)
   sol: number; // this trade's SOL size, in SOL
   isBuy: boolean;
 }
@@ -199,7 +200,6 @@ function exitFor(p: Position, s: MintState): boolean {
 // ------------------------------------------------------------------ batch
 function decideBatch(seq: number): Order[] {
   const orders: Order[] = [];
-  const openCount = [...positions.values()].filter((p) => !p.pending).length;
 
   // 1. Exits first: sell every position whose TP / SL / max-hold fired.
   //    Deterministic order: sort by mint.
@@ -230,7 +230,10 @@ function decideBatch(seq: number): Order[] {
 
   // 2. Entries: one candidate per mint, SEF first, then CB; candidates are
   //    visited in sorted mint order so the reply is fully deterministic.
-  let slots = maxOpenPositions - (openCount - exiting.size);
+  //    Pending buys already occupy a slot: the harness counts a position
+  //    from its fill, but firing more buys than the cap allows only earns
+  //    max_open_positions rejections, so count them here.
+  let slots = maxOpenPositions - positions.size;
   if (slots > 0) {
     const candidates = [...mints.keys()].sort();
     for (const mint of candidates) {
@@ -251,9 +254,11 @@ function decideBatch(seq: number): Order[] {
       }
       if (strategy === null) continue;
       // Size: base size, capped at 1% of the real SOL reserve (the cap the
-      // harness enforces per order) and at the cash actually on hand.
+      // harness enforces per order) and at the cash actually on hand. The
+      // cap is computed from exact lamports, never a float, so the order
+      // can never overshoot the harness's own size check by rounding.
       let quote = BigInt(Math.floor(sizeSol * 1_000_000_000));
-      const reserveCap = (BigInt(Math.floor(last.rSol * 1_000_000_000)) * BigInt(maxOrderBps)) / 10000n;
+      const reserveCap = (last.rLamports * BigInt(maxOrderBps)) / 10000n;
       if (quote > reserveCap) quote = reserveCap;
       if (quote > cashLamports) quote = cashLamports;
       if (quote <= 0n) continue;
@@ -291,6 +296,19 @@ function applyFills(fills: any[] | undefined): void {
       if (p !== undefined && p.pending) {
         p.tokens = BigInt(f.token_amount ?? "0");
         p.pending = false;
+        // Honest entry price: the fill lands two slots after the decision,
+        // so the decision-time price overstates the entry. Re-anchor the
+        // entry to the latest tick seen when the fill is reported, so the
+        // TP / SL ratios are measured against the price actually paid.
+        // (The fill report arrives in the same batch processing pass, after
+        // this batch's events were consumed, so lastTick is the fill-time
+        // price or the closest tick to it.)
+        const s = mints.get(mint);
+        const last = s === undefined ? undefined : lastTick(s);
+        if (last !== undefined) {
+          p.entryVSol = last.vSol;
+          p.entryCount = s.count;
+        }
       }
     } else if (f.side === "buy" && (f.status === "rejected" || f.status === "failed")) {
       const p = positions.get(mint);
@@ -354,7 +372,7 @@ function handleBatch(msg: any): void {
       const vSol = Number(BigInt(ev.virtual_sol_reserves ?? "0")) / 1_000_000_000;
       const rSol = Number(BigInt(ev.real_sol_reserves ?? "0")) / 1_000_000_000;
       const sol = Number(BigInt(ev.sol_amount ?? "0")) / 1_000_000_000;
-      s.ticks.push({ vSol, rSol, sol, isBuy: ev.is_buy === true });
+      s.ticks.push({ vSol, rSol, rLamports: BigInt(ev.real_sol_reserves ?? "0"), sol, isBuy: ev.is_buy === true });
       if (s.ticks.length > CB_WINDOW) s.ticks.splice(0, s.ticks.length - CB_WINDOW);
       s.count += 1;
       s.batchNetBuySol += ev.is_buy === true ? sol : -sol;
