@@ -61,7 +61,7 @@ const SEF_MAX_HOLD_EVENTS = 80;
 const CB_WINDOW = 50;
 const CB_RANGE = 0.05; // 50-event price range <= 5%
 const CB_RESERVE_DRIFT = 0.02; // real reserve within +-2% over the window
-const CB_BATCH_NET_BUY = 0.004; // this batch net buy >= 0.4% of real reserve
+const CB_BATCH_NET_BUY = 10; // disabled for this variant: CB never triggers
 const CB_SIZE_SOL = 0.6;
 const CB_TP = 1.08;
 const CB_SL = 0.96;
